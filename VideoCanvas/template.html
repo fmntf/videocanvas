@@ -1,0 +1,120 @@
+<html>
+	<head>
+		<title>VideoCanvas output</title>
+		<script type="application/x-javascript">
+
+			function interval(duration, fn){
+				this.baseline = undefined
+
+				this.run = function(){
+					if(this.baseline === undefined){
+					  this.baseline = new Date().getTime()
+					}
+					fn()
+					var end = new Date().getTime()
+					this.baseline += duration
+
+					var nextTick = duration - (end - this.baseline)
+					if(nextTick<0){
+					  nextTick = 0
+					}
+					(function(i){
+						i.timer = setTimeout(function(){
+						i.run(end)
+					  }, nextTick)
+					}(this))
+				}
+
+				this.stop = function(){
+					clearTimeout(this.timer)
+				}
+			}
+
+		
+			function drawFirstFrame() {
+
+				var canvas = document.getElementById('canvas'),
+					ctx = canvas.getContext('2d'),
+					img = new Image();
+					
+				canvas.addEventListener('mouseover', draw, false);
+				
+				img.src = 'tiles.png';
+				img.onload = function(){
+
+					var frames = %%%METADATA%%%;
+
+					var f, s;
+					var BLOCK = %%%BLOCKSIZE%%%;
+
+					for (s=0; s<frames[0].length; s++) {
+						var draw = frames[0][s],
+							x = (draw.tile % 10)*BLOCK,
+							y = Math.floor(draw.tile / 10)*BLOCK;
+
+						ctx.drawImage(img, x, y, BLOCK, BLOCK, draw.left, draw.top, BLOCK, BLOCK);
+					}
+				}
+			}
+			
+			var drawing = false;
+		
+			function draw() {
+			
+				if (drawing) {
+					return;
+				}
+				drawing = true;
+
+				var canvas = document.getElementById('canvas'),
+					ctx = canvas.getContext('2d'),
+					img = new Image();
+				
+				img.src = 'tiles.png';
+				img.onload = function(){
+
+					var frames = %%%METADATA%%%;
+
+					var f, s;
+					var BLOCK = %%%BLOCKSIZE%%%;
+
+					var nextFrame = 0;
+
+					var timer = new interval(1000/15, function(){
+
+						for (s=0; s<frames[nextFrame].length; s++) {
+							var draw = frames[nextFrame][s],
+								x = (draw.tile % 10)*BLOCK,
+								y = Math.floor(draw.tile / 10)*BLOCK;
+
+							ctx.drawImage(img, x, y, BLOCK, BLOCK, draw.left, draw.top, BLOCK, BLOCK);
+						}
+
+						nextFrame++;
+
+						if (nextFrame >= frames.length) {
+							timer.stop();
+						}
+
+					});
+					timer.run();
+
+				}
+			}
+
+		</script>
+		<style type="text/css">
+			canvas { border: 2px solid #000; margin-right: 20px; margin-bottom: 20px; }
+		</style>
+	</head>
+	<body onload="drawFirstFrame();">
+		<div>
+			<canvas id="canvas" width="%%%IMGWIDTH%%%" height="%%%IMGHEIGHT%%%"></canvas>
+		</div>
+
+		<div>
+			<p>Tiles</p>
+			<img src="tiles.png">
+		</div>
+	</body>
+</html>

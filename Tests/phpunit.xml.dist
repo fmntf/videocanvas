@@ -1,0 +1,6 @@
+<phpunit
+	backupGlobals="false" backupStaticAttributes="false"
+	bootstrap="../VideoCanvas/autoload.php"
+	colors="true">
+</phpunit>
+
