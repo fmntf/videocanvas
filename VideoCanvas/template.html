@@ -30,6 +30,7 @@
 				}
 			}
 
+			var frames = %%%METADATA%%%;
 		
 			function drawFirstFrame() {
 
@@ -41,8 +42,6 @@
 				
 				img.src = 'tiles.png';
 				img.onload = function(){
-
-					var frames = %%%METADATA%%%;
 
 					var f, s;
 					var BLOCK = %%%BLOCKSIZE%%%;
@@ -73,11 +72,8 @@
 				img.src = 'tiles.png';
 				img.onload = function(){
 
-					var frames = %%%METADATA%%%;
-
 					var f, s;
 					var BLOCK = %%%BLOCKSIZE%%%;
-
 					var nextFrame = 0;
 
 					var timer = new interval(1000/15, function(){
