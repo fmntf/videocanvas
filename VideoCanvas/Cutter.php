@@ -62,8 +62,8 @@ class VideoCanvas_Cutter
 							$hasTile = true;
 
 							$meta[$nframe][] = array(
-								'left' => BLOCK*$col,
-								'top' => BLOCK*$row,
+								'l' => BLOCK*$col,
+								't' => BLOCK*$row,
 								'tile' => $inThisPositionFromPreviousFrame
 							);
 						}
@@ -87,8 +87,8 @@ class VideoCanvas_Cutter
 								$hasTile = true;
 
 								$meta[$nframe][] = array(
-									'left' => BLOCK*$col,
-									'top' => BLOCK*$row,
+									'l' => BLOCK*$col,
+									't' => BLOCK*$row,
 									'tile' => $pos
 								);
 
@@ -105,8 +105,8 @@ class VideoCanvas_Cutter
 
 						if (count($candidates) == 0) {
 							$meta[$nframe][] = array(
-								'left' => BLOCK*$col,
-								'top' => BLOCK*$row,
+								'l' => BLOCK*$col,
+								't' => BLOCK*$row,
 								'tile' => count($tiles)
 							);
 
@@ -122,8 +122,8 @@ class VideoCanvas_Cutter
 							}
 
 							$meta[$nframe][] = array(
-								'left' => BLOCK*$col,
-								'top' => BLOCK*$row,
+								'l' => BLOCK*$col,
+								't' => BLOCK*$row,
 								'tile' => $pos
 							);
 						}

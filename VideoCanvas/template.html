@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<title>VideoCanvas output</title>
-		<script type="application/x-javascript">
+		<script type="application/javascript">
 
 			function interval(duration, fn){
 				this.baseline = undefined
@@ -51,7 +51,7 @@
 							x = (draw.tile % 10)*BLOCK,
 							y = Math.floor(draw.tile / 10)*BLOCK;
 
-						ctx.drawImage(img, x, y, BLOCK, BLOCK, draw.left, draw.top, BLOCK, BLOCK);
+						ctx.drawImage(img, x, y, BLOCK, BLOCK, draw.l, draw.t, BLOCK, BLOCK);
 					}
 				}
 			}
@@ -77,13 +77,23 @@
 					var nextFrame = 0;
 
 					var timer = new interval(1000/15, function(){
+					
+						var drawer = function(frame, s) {
+							var draw = frame[s],
+									x = (draw.tile % 10)*BLOCK,
+									y = Math.floor(draw.tile / 10)*BLOCK;
 
-						for (s=0; s<frames[nextFrame].length; s++) {
-							var draw = frames[nextFrame][s],
-								x = (draw.tile % 10)*BLOCK,
-								y = Math.floor(draw.tile / 10)*BLOCK;
+							ctx.drawImage(img, x, y, BLOCK, BLOCK, draw.l, draw.t, BLOCK, BLOCK);
+						};
 
-							ctx.drawImage(img, x, y, BLOCK, BLOCK, draw.left, draw.top, BLOCK, BLOCK);
+						if (typeof frames[nextFrame] == "object") {
+							for (s in frames[nextFrame]) {
+								drawer(frames[nextFrame], s);
+							}
+						} else {
+							for (s=0; s<frames[nextFrame].length; s++) {
+								drawer(frames[nextFrame], s);
+							}
 						}
 
 						nextFrame++;

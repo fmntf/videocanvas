@@ -23,13 +23,10 @@
 
 class VideoCanvas_ImagesExtractor
 {
-//	public function extract($videoPath)
-//	{
-//		return "/tmp/videocanvas-5058f478ccae4";
-//	}
-	
 	public function extract($videoPath)
 	{
+		return "/tmp/videocanvas-505a406ade34a";
+		
 		$dir = "/tmp/videocanvas-" . uniqid();
 		mkdir($dir);
 		

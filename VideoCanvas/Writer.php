@@ -56,6 +56,8 @@ class VideoCanvas_Writer
 	public function createHtml()
 	{
 		$meta = $this->cut['meta'];
+		$diff = new VideoCanvas_MetaDiff();
+		$meta = $diff->diff($meta);
 		
 		$html = file_get_contents(dirname(__FILE__) . "/template.html");
 
