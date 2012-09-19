@@ -3,114 +3,116 @@
 		<title>VideoCanvas output</title>
 		<script type="application/javascript">
 
-			function interval(duration, fn){
-				this.baseline = undefined
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
 
-				this.run = function(){
-					if(this.baseline === undefined){
-					  this.baseline = new Date().getTime()
-					}
-					fn()
-					var end = new Date().getTime()
-					this.baseline += duration
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
 
-					var nextTick = duration - (end - this.baseline)
-					if(nextTick<0){
-					  nextTick = 0
-					}
-					(function(i){
-						i.timer = setTimeout(function(){
-						i.run(end)
-					  }, nextTick)
-					}(this))
-				}
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
 
-				this.stop = function(){
-					clearTimeout(this.timer)
-				}
-			}
+var frames = %%%METADATA%%%;
 
-			var frames = %%%METADATA%%%;
-		
-			function drawFirstFrame() {
+var BLOCK = %%%BLOCKSIZE%%%,
+	drawing = false;
+	
+var drawer = function(ctx, img, frame, s) {
+	var draw = frame[s],
+			x = (draw.tile % 10)*BLOCK,
+			y = Math.floor(draw.tile / 10)*BLOCK;
 
-				var canvas = document.getElementById('canvas'),
-					ctx = canvas.getContext('2d'),
-					img = new Image();
-					
-				canvas.addEventListener('mouseover', draw, false);
+	ctx.drawImage(img, x, y, BLOCK, BLOCK, draw.l, draw.t, BLOCK, BLOCK);
+};
+
+function drawFirstFrame() {
+
+	var canvas = document.getElementById('canvas'),
+		ctx = canvas.getContext('2d');
+	canvas.addEventListener('mouseover', draw, false);
+	
+	var img = new Image();
+	img.src = 'tiles.png';
+	img.onload = function(){
+		var s;
+		for (s=0; s<frames[0].length; s++) {
+			drawer(ctx, img, frames[0], s);
+		}
+	}
+}
+
+function draw() {
+
+	if (drawing) {
+		return;
+	}
+	drawing = true;
+
+	var canvas = document.getElementById('canvas'),
+		ctx = canvas.getContext('2d'),
+		img = new Image();
+
+	img.src = 'tiles.png';
+	img.onload = function(){
+
+		var s;
+		var nextFrame = 0;
+		var interval = 1000/15;
+
+		function drawFrame() {
+			setTimeout(function() {
+				var id = window.requestAnimationFrame(drawFrame);
+
 				
-				img.src = 'tiles.png';
-				img.onload = function(){
 
-					var f, s;
-					var BLOCK = %%%BLOCKSIZE%%%;
-
-					for (s=0; s<frames[0].length; s++) {
-						var draw = frames[0][s],
-							x = (draw.tile % 10)*BLOCK,
-							y = Math.floor(draw.tile / 10)*BLOCK;
-
-						ctx.drawImage(img, x, y, BLOCK, BLOCK, draw.l, draw.t, BLOCK, BLOCK);
+				if (typeof frames[nextFrame] == "object") {
+					for (s in frames[nextFrame]) {
+						drawer(ctx, img, frames[nextFrame], s);
+					}
+				} else {
+					for (s=0; s<frames[nextFrame].length; s++) {
+						drawer(ctx, img, frames[nextFrame], s);
 					}
 				}
-			}
-			
-			var drawing = false;
-		
-			function draw() {
-			
-				if (drawing) {
-					return;
+
+				nextFrame++;
+
+				if (nextFrame >= frames.length) {
+					window.cancelAnimationFrame(id);
 				}
-				drawing = true;
+			}, interval);
+		}
 
-				var canvas = document.getElementById('canvas'),
-					ctx = canvas.getContext('2d'),
-					img = new Image();
-				
-				img.src = 'tiles.png';
-				img.onload = function(){
+		drawFrame();
 
-					var f, s;
-					var BLOCK = %%%BLOCKSIZE%%%;
-					var nextFrame = 0;
-
-					var timer = new interval(1000/15, function(){
-					
-						var drawer = function(frame, s) {
-							var draw = frame[s],
-									x = (draw.tile % 10)*BLOCK,
-									y = Math.floor(draw.tile / 10)*BLOCK;
-
-							ctx.drawImage(img, x, y, BLOCK, BLOCK, draw.l, draw.t, BLOCK, BLOCK);
-						};
-
-						if (typeof frames[nextFrame] == "object") {
-							for (s in frames[nextFrame]) {
-								drawer(frames[nextFrame], s);
-							}
-						} else {
-							for (s=0; s<frames[nextFrame].length; s++) {
-								drawer(frames[nextFrame], s);
-							}
-						}
-
-						nextFrame++;
-
-						if (nextFrame >= frames.length) {
-							timer.stop();
-						}
-
-					});
-					timer.run();
-
-				}
-			}
+	}
+}
 
 		</script>
 		<style type="text/css">
-			canvas { border: 2px solid #000; margin-right: 20px; margin-bottom: 20px; }
+			canvas { border: 1px dashed #000; margin-right: 20px; margin-bottom: 20px; }
 		</style>
 	</head>
 	<body onload="drawFirstFrame();">
